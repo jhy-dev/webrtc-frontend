@@ -1,0 +1,25 @@
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: ssl-key-issuer
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  namespace: jhy
+spec:
+  rules:
+  - host: ssl.sngy.io
+    http:
+      paths:
+      - backend:
+          serviceName: server-service
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - ssl.sngy.io
+    secretName: ssl-ing-tls

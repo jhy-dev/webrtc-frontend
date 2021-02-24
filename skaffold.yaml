@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta12
+kind: Config
+metadata:
+  name: webrtc-front
+build:
+  artifacts:
+  - image: asia.gcr.io/synergy-249605/pvms-front
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - kubernetes-manifests/Deployment.yaml
+    - kubernetes-manifests/Service.yaml

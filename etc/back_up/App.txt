@@ -104,6 +104,8 @@ function App() {
     const offer = await local_pc.createOffer();
     await local_pc.setLocalDescription(offer!);
 
+
+
     //local pc -> remote pc (call 2/2)
     //create answer from remote pc and send it back to local pc
     socketRef.current?.on(SignalFlow.OFFER, async (message: Message) => {
@@ -170,13 +172,14 @@ function App() {
       },
     }));
 
-    socketRef.current = socket;
-
     //someone has joined
-    socketRef.current?.on(SignalFlow.ROOM, (ev: any) => {
+    socket.on(SignalFlow.ROOM, (ev: any) => {
       setNum_participants(ev.number);
       setParticipants(ev.participants);
     })
+
+
+    socketRef.current = socket;
 
 
     startStream();
@@ -194,6 +197,7 @@ function App() {
       // local_pc.close();
       // socket.close();
     }
+
   }, [])
 
   useEffect(() => {
@@ -210,11 +214,11 @@ function App() {
 
 
         <h2>
-          {/* Local Video */}
-        </h2>
+          Local Video
+  </h2>
         <Row>
           <video
-            width={0}
+            width={300}
             id="local_element"
             muted={true}
             autoPlay={true}
@@ -223,11 +227,11 @@ function App() {
         </Row>
         <br />
         <h2>
-          {/* Remote Video */}
-        </h2>
+          Remote Video
+  </h2>
         <Row>
           <video
-            width={0}
+            width={300}
             id="remote_element"
             muted={true}
             autoPlay={true}

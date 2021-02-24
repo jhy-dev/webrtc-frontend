@@ -1,0 +1,29 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pvms-front-deployment
+  namespace: jhy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pvms-front
+  template:
+    metadata:
+      labels:
+        app: pvms-front
+    spec:
+      containers:
+      - name: pvms-front
+        image: asia.gcr.io/synergy-249605/pvms-front
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "250Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
