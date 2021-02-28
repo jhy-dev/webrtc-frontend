@@ -145,7 +145,6 @@ function LiveStreaming() {
     }
 
     useEffect(() => {
-        // const socket = (io("wss://pvms-websocket.sngy.io", {
         const socket = (io("ws://172.30.1.10:5000", {
             // path: "/",
             transports: ["websocket"],

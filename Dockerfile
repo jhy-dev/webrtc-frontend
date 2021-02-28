@@ -1,7 +1,4 @@
- 
-# docker build -t asia.gcr.io/synergy-249605/pvms-front .
-# docker run -p 3000:3000 -d asia.gcr.io/synergy-249605/pvms-front
- 
+
 # node image
 FROM node:15.10.0-alpine3.10
  
