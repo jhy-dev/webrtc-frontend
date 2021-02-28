@@ -1,12 +1,31 @@
+
+# WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+# standard_init_linux.go:211: exec user process caused "exec format error"
+# https://betterprogramming.pub/how-to-actually-deploy-docker-images-built-on-a-m1-macs-with-apple-silicon-a35e39318e97
+
+# docker buildx build --platform linux/amd64 -t asia.gcr.io/synergy-249605/[IMAGE_NAME] . --push
+
+# docker buildx build --platform linux/amd64 -t asia.gcr.io/synergy-249605/pvms-front .
+# docker push asia.gcr.io/synergy-249605/pvms-front
+
 apiVersion: skaffold/v2beta12
 kind: Config
 metadata:
   name: webrtc-front
 build:
+  tagPolicy:
+    sha256: {}
   artifacts:
   - image: asia.gcr.io/synergy-249605/pvms-front
-    docker:
-      dockerfile: Dockerfile
+      # local build - macbook m1 (arm64)
+    custom:
+      buildCommand: docker buildx build --platform linux/amd64 -t asia.gcr.io/synergy-249605/pvms-front . --push
+      dependencies:
+        paths:
+        - .
+    # third party provider (cloudbuild) - linux (amd64) 
+    # docker:
+    #   dockerfile: Dockerfile
 deploy:
   kubectl:
     manifests:

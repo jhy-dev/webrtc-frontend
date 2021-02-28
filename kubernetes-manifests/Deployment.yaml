@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
       - name: pvms-front
-        image: asia.gcr.io/synergy-249605/pvms-front
+        image: asia.gcr.io/synergy-249605/pvms-front:latest
         resources:
           requests:
-            memory: "32Mi"
-            cpu: "100m"
-          limits:
             memory: "250Mi"
             cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1Gi"
         ports:
-        - containerPort: 80
+        - containerPort: 3000

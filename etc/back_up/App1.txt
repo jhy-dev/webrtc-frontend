@@ -44,11 +44,46 @@ function App() {
 
   const config: RTCConfiguration = {
     iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' }
+      //  { urls: 'stun:stun01.sipphone.com' },
+      //  { urls: 'stun:stun.ekiga.net' },
+      //  { urls: 'stun:stun.fwdnet.net' },
+      //  { urls: 'stun:stun.ideasip.com' },
+      //  { urls: 'stun:stun.iptel.org' },
+      //  { urls: 'stun:stun.rixtelecom.se' },
+      //  { urls: 'stun:stun.schlund.de' },
+
+      //  { urls: 'stun:stunserver.org' },
+      //  { urls: 'stun:stun.softjoys.com' },
+      //  { urls: 'stun:stun.voiparound.com' },
+      //  { urls: 'stun:stun.voipbuster.com' },
+      //  { urls: 'stun:stun.voipstunt.com' },
+      //  { urls: 'stun:stun.voxgratia.org' },
+      //  { urls: 'stun:stun.xten.com' },
+      {
+        urls: 'turn:numb.viagenie.ca',
+        credential: 'muazkh',
+        username: 'webrtc@live.com'
+      },
+      {
+        urls: 'turn:192.158.29.39:3478?transport=udp',
+        credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+        username: '28224511:1379330808'
+      },
+      {
+        urls: 'turn:192.158.29.39:3478?transport=tcp',
+        credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+        username: '28224511:1379330808'
+      },
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
     ]
   },
     [local_pc] = useState<RTCPeerConnection>(new RTCPeerConnection(config));
 
+  console.log(config);
 
   const [participants, setParticipants] = useState<Array<string>>([]);
   const [num_participants, setNum_participants] = useState(0);
@@ -107,7 +142,7 @@ function App() {
     //local pc -> remote pc (call 2/2)
     //create answer from remote pc and send it back to local pc
     socketRef.current?.on(SignalFlow.OFFER, async (message: Message) => {
-      // console.log(`offer from: ${JSON.stringify(message.source)}`);
+      console.log(`offer from: ${JSON.stringify(message.source)}`);
       target = message.source!;
       // console.log(`target ${target}`);
       if (message.sdp) {
@@ -124,7 +159,7 @@ function App() {
 
     //remote pc -> local pc (response)
     socketRef.current?.on(SignalFlow.ANSWER, async (message: Message) => {
-      // console.log(`answer from: ${JSON.stringify(message.source)}`);
+      console.log(`answer from: ${JSON.stringify(message.source)}`);
       if (message.sdp) {
         await local_pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
       }
@@ -132,7 +167,7 @@ function App() {
 
     //icecandidate remote pc -> local pc
     socketRef.current?.on(SignalFlow.CANDIDATE, async (message: Message) => {
-      // console.log(`icecandidate from ${message.source}`);
+      console.log(`icecandidate from ${message.source}`);
       if (message.sdp) {
         // console.log(`candidate: ${JSON.stringify(message.candidate)}`)
         local_pc.addIceCandidate(new RTCIceCandidate(message.candidate));
@@ -162,7 +197,7 @@ function App() {
 
   useEffect(() => {
 
-    const socket = (io("34.64.121.181:5000", {
+    const socket = (io("wss://pvms-websocket.sngy.io", {
       // path: "/",
       transports: ["websocket"],
       auth: {
@@ -177,6 +212,12 @@ function App() {
       setNum_participants(ev.number);
       setParticipants(ev.participants);
     })
+
+    sendToSignalServer(
+      SignalFlow.ROOM,
+      {
+        room
+      })
 
 
     startStream();
@@ -237,7 +278,7 @@ function App() {
           </video>
         </Row>
 
-        <Row
+        {/* <Row
           style={{ padding: 150 }}
         >
           <Col>
@@ -252,11 +293,11 @@ function App() {
                 onClick={() => onSearch()}
                 variant="primary" >
                 JOIN
-  </Button>
+ </Button>
             </Form>
           </Col>
 
-        </Row>
+        </Row> */}
         <hr />
         {
           num_participants > 0 ?
@@ -297,70 +338,70 @@ function App() {
             :
             <React.Fragment>
               No Participant yet
-  </React.Fragment>
+ </React.Fragment>
         }
 
 
       </Container>
 
-      {/* 
-      <Layout className="layout">
-        <Header>
-          <div className="logo" />
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
-            <Menu.Item key="1">Home</Menu.Item>
-          </Menu>
-        </Header>
-        <Content style={{ padding: '0 50px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>Room</Breadcrumb.Item>
-          </Breadcrumb>
-
-          <Space direction="horizontal">
-
-          </Space>
-          <br />
-          <br />
-          <Space direction="vertical">
-            <Search
-              placeholder="room number"
-              allowClear
-              enterButton="Join"
-              size="large"
-              onSearch={onSearch}
-            />
-            {
-              num_participants > 0 ?
-                <React.Fragment>
-                  <Divider orientation="left"></Divider>
-                  <List
-                    header={<div>{num_participants} people are in the {room} (including me)</div>}
-                    bordered
-                    dataSource={participants}
-                    renderItem={item => (
-                      <List.Item>
-                        {item}<Typography.Text><Button
-                          onClick={() => makeCall(item)}
-                          type="text" danger
-                        >CALL</Button></Typography.Text>
-                      </List.Item>
-                    )}
-                  />
-                </React.Fragment>
-                :
-                <React.Fragment>
-                  no participant yet
-             </React.Fragment>
-
-            }
-
-          </Space>
-
-
-
-        </Content>
-        <Footer style={{ textAlign: 'center' }}>Websocket Demo</Footer>
-      </Layout> */}
+      {/*
+     <Layout className="layout">
+       <Header>
+         <div className="logo" />
+         <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
+           <Menu.Item key="1">Home</Menu.Item>
+         </Menu>
+       </Header>
+       <Content style={{ padding: '0 50px' }}>
+         <Breadcrumb style={{ margin: '16px 0' }}>
+           <Breadcrumb.Item>Room</Breadcrumb.Item>
+         </Breadcrumb>
+ 
+         <Space direction="horizontal">
+ 
+         </Space>
+         <br />
+         <br />
+         <Space direction="vertical">
+           <Search
+             placeholder="room number"
+             allowClear
+             enterButton="Join"
+             size="large"
+             onSearch={onSearch}
+           />
+           {
+             num_participants > 0 ?
+               <React.Fragment>
+                 <Divider orientation="left"></Divider>
+                 <List
+                   header={<div>{num_participants} people are in the {room} (including me)</div>}
+                   bordered
+                   dataSource={participants}
+                   renderItem={item => (
+                     <List.Item>
+                       {item}<Typography.Text><Button
+                         onClick={() => makeCall(item)}
+                         type="text" danger
+                       >CALL</Button></Typography.Text>
+                     </List.Item>
+                   )}
+                 />
+               </React.Fragment>
+               :
+               <React.Fragment>
+                 no participant yet
+            </React.Fragment>
+ 
+           }
+ 
+         </Space>
+ 
+ 
+ 
+       </Content>
+       <Footer style={{ textAlign: 'center' }}>Websocket Demo</Footer>
+     </Layout> */}
 
 
 
@@ -369,6 +410,9 @@ function App() {
 }
 
 export default App;
+
+
+
 
 
 
